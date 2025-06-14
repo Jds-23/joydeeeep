@@ -66,6 +66,7 @@ const TicTacToe: React.FC = () => {
     const [board, setBoard] = useState<(string | null)[]>(emptyBoard);
     const [xIsNext, setXIsNext] = useState(true);
     const [animateBoard, setAnimateBoard] = useState(false);
+    const [boardAnimKey, setBoardAnimKey] = useState(0);
     const result = calculateWinner(board);
     const winner = result?.winner;
     const winLine = result?.line;
@@ -82,6 +83,7 @@ const TicTacToe: React.FC = () => {
         setAnimateBoard(true);
         setBoard(emptyBoard);
         setXIsNext(true);
+        setBoardAnimKey(k => k + 1);
         setTimeout(() => setAnimateBoard(false), 600); // match animation duration
     }
 
@@ -133,14 +135,46 @@ const TicTacToe: React.FC = () => {
             <div className="mb-4 text-lg font-semibold text-gray-700">{status}</div>
             <div className="relative w-[270px] h-[270px]">
                 <svg
-                    className={`absolute top-0 left-0 w-full h-full pointer-events-none z-20 ${animateBoard ? 'animate-board-lines' : ''}`}
+                    key={boardAnimKey}
+                    className={`absolute top-0 left-0 w-full h-full pointer-events-none z-20`}
                     viewBox="0 0 150 150"
                 >
-                    {/* Board lines */}
-                    <line x1="50" y1="0" x2="50" y2="150" className="stroke-gray-500" strokeWidth="2" strokeLinecap="round" />
-                    <line x1="100" y1="0" x2="100" y2="150" className="stroke-gray-500" strokeWidth="2" strokeLinecap="round" />
-                    <line x1="0" y1="50" x2="150" y2="50" className="stroke-gray-500" strokeWidth="2" strokeLinecap="round" />
-                    <line x1="0" y1="100" x2="150" y2="100" className="stroke-gray-500" strokeWidth="2" strokeLinecap="round" />
+                    {/* Vertical line 1 */}
+                    <line
+                        x1="50" y1="150" x2="50" y2="150"
+                        className="stroke-gray-500"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                    >
+                        <animate attributeName="y1" from="150" to="0" dur="0.5s" fill="freeze" />
+                    </line>
+                    {/* Vertical line 2 (reverse growth) */}
+                    <line
+                        x1="100" y1="0" x2="100" y2="0"
+                        className="stroke-gray-500"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                    >
+                        <animate attributeName="y2" from="0" to="150" dur="0.5s" fill="freeze" />
+                    </line>
+                    {/* Horizontal line 1 */}
+                    <line
+                        x1="0" y1="50" x2="0" y2="50"
+                        className="stroke-gray-500"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                    >
+                        <animate attributeName="x2" from="0" to="150" dur="0.5s" fill="freeze" />
+                    </line>
+                    {/* Horizontal line 2 (reverse growth) */}
+                    <line
+                        x1="150" y1="100" x2="150" y2="100"
+                        className="stroke-gray-500"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                    >
+                        <animate attributeName="x1" from="150" to="0" dur="0.5s" fill="freeze" />
+                    </line>
                     {/* Win line */}
                     {winLineSVG}
                 </svg>
