@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-
-const emptyBoard = Array(9).fill(null);
+import { emptyBoard, useGameQuery, useGameMutation } from '../../lib/ttt/hook';
+import { Connect } from '../Connect';
+import Square from './Square';
+import { useQueryState } from 'nuqs'
 
 const lines = [
     [0, 1, 2],
@@ -23,68 +25,43 @@ function calculateWinner(squares: (string | null)[]) {
     return null;
 }
 
-const Square: React.FC<{
-    value: string | null;
-    onClick: () => void;
-    highlight?: boolean;
-}> = ({ value, onClick, highlight }) => {
-    return (
-        <button
-            className={`w-full h-full flex items-center justify-center bg-white transition-colors duration-200 focus:outline-none active:bg-gray-100 ${highlight ? 'bg-yellow-100' : ''
-                }`}
-            onClick={onClick}
-            data-testid="square"
-            style={{ aspectRatio: '1 / 1' }}
-        >
-            {value === 'X' && (
-                <svg
-                    className="w-12 h-12 stroke-blue-500 animate-draw-x"
-                    viewBox="0 0 48 48"
-                    fill="none"
-                    strokeWidth="4"
-                    strokeLinecap="round"
-                >
-                    <line x1="8" y1="8" x2="40" y2="40" />
-                    <line x1="40" y1="8" x2="8" y2="40" />
-                </svg>
-            )}
-            {value === 'O' && (
-                <svg
-                    className="w-12 h-12 stroke-red-500 animate-draw-o"
-                    viewBox="0 0 48 48"
-                    fill="none"
-                    strokeWidth="4"
-                >
-                    <circle cx="24" cy="24" r="16" />
-                </svg>
-            )}
-        </button>
-    );
-};
-
 const TicTacToe: React.FC = () => {
-    const [board, setBoard] = useState<(string | null)[]>(emptyBoard);
+    // const [board, setBoard] = useState<(string | null)[]>(emptyBoard);
+    const [gameId] = useQueryState("id");
+    const id = gameId ? BigInt(gameId) : undefined;
+    const { data: gameData, refetch: refetchGame, } = useGameQuery(id);
+    const board = gameData?.board ?? emptyBoard;
     const [xIsNext, setXIsNext] = useState(true);
-    const [animateBoard, setAnimateBoard] = useState(false);
     const [boardAnimKey, setBoardAnimKey] = useState(0);
     const result = calculateWinner(board);
     const winner = result?.winner;
     const winLine = result?.line;
-
+    const { mutate: gameMutation } = useGameMutation(
+        {
+            onSuccess: () => {
+                refetchGame().then(({ data }) => {
+                    console.log(data)
+                })
+            }
+        }
+    );
     function handleClick(index: number) {
-        if (board[index] || winner) return;
-        const newBoard = board.slice();
-        newBoard[index] = xIsNext ? 'X' : 'O';
-        setBoard(newBoard);
-        setXIsNext(!xIsNext);
+        if (!id) {
+            return;
+        }
+        gameMutation({
+            type: "play",
+            id,
+            position: index
+        })
     }
 
+    console.log(gameData)
+
     function handleReset() {
-        setAnimateBoard(true);
-        setBoard(emptyBoard);
+        // setBoard(emptyBoard);
         setXIsNext(true);
         setBoardAnimKey(k => k + 1);
-        setTimeout(() => setAnimateBoard(false), 600); // match animation duration
     }
 
     let status;
@@ -95,16 +72,6 @@ const TicTacToe: React.FC = () => {
     } else {
         status = `Next player: ${xIsNext ? 'X' : 'O'}`;
     }
-
-    // Board SVG lines
-    const boardLines = [
-        // vertical
-        <line key="v1" x1="33.33%" y1="0" x2="33.33%" y2="100%" className="stroke-gray-300" strokeWidth="2" />,
-        <line key="v2" x1="66.66%" y1="0" x2="66.66%" y2="100%" className="stroke-gray-300" strokeWidth="2" />,
-        // horizontal
-        <line key="h1" x1="0" y1="33.33%" x2="100%" y2="33.33%" className="stroke-gray-300" strokeWidth="2" />,
-        <line key="h2" x1="0" y1="66.66%" x2="100%" y2="66.66%" className="stroke-gray-300" strokeWidth="2" />
-    ];
 
     // Win line SVG
     const winLineSVG = winLine ? (() => {
@@ -183,7 +150,12 @@ const TicTacToe: React.FC = () => {
                         <Square
                             key={i}
                             value={val}
-                            onClick={() => handleClick(i)}
+                            onClick={() => {
+                                if (val) {
+                                    return;
+                                }
+                                handleClick(i)
+                            }}
                             highlight={winLine?.includes(i)}
                         />
                     ))}
@@ -195,6 +167,37 @@ const TicTacToe: React.FC = () => {
             >
                 Reset
             </button>
+            <Connect />
+            <form
+                onSubmit={(e) => {
+                    e.preventDefault();
+                    const formData = new FormData(e.target as HTMLFormElement);
+                    const opponent = formData.get("opponent") as `0x${string}`;
+                    gameMutation({
+                        type: "newGame",
+                        opponent: opponent
+                    })
+                }}
+            >
+                <input className='border-2 border-gray-300 rounded-md px-2 py-1' type="text" name="opponent" placeholder="Opponent address" />
+                <button
+                    className="mt-6 px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                    type="submit"
+                >
+                    New Game
+                </button>
+            </form>
+            {/* <button
+                className="mt-6 px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                onClick={() => {
+                    gameMutation({
+                        type: "newGame",
+                        opponent: "0xa31aBd41FfA26cC22C6e78761756985275513C88"
+                    })
+                }}
+            >
+                New Game
+            </button> */}
             {/* Tailwind custom keyframes for SVG draw animations */}
             <style>{`
         @layer utilities {
