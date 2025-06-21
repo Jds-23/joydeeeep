@@ -3,6 +3,8 @@ import { emptyBoard, useGameQuery, useGameMutation } from '../../lib/ttt/hook';
 import { Connect } from '../Connect';
 import Square from './Square';
 import { useQueryState } from 'nuqs'
+import { useAccount } from 'wagmi';
+import { useQueryClient } from '@tanstack/react-query';
 
 const lines = [
     [0, 1, 2],
@@ -27,24 +29,16 @@ function calculateWinner(squares: (string | null)[]) {
 
 const TicTacToe: React.FC = () => {
     // const [board, setBoard] = useState<(string | null)[]>(emptyBoard);
+    const { address } = useAccount();
     const [gameId] = useQueryState("id");
     const id = gameId ? BigInt(gameId) : undefined;
-    const { data: gameData, refetch: refetchGame, } = useGameQuery(id);
-    const board = gameData?.board ?? emptyBoard;
-    const [xIsNext, setXIsNext] = useState(true);
+    const { data: gameData } = useGameQuery(id);
+    // const board = gameData?.board ?? emptyBoard;
     const [boardAnimKey, setBoardAnimKey] = useState(0);
-    const result = calculateWinner(board);
+    const result = calculateWinner(gameData?.board ?? emptyBoard);
     const winner = result?.winner;
     const winLine = result?.line;
-    const { mutate: gameMutation } = useGameMutation(
-        {
-            onSuccess: () => {
-                refetchGame().then(({ data }) => {
-                    console.log(data)
-                })
-            }
-        }
-    );
+    const { mutate: gameMutation } = useGameMutation();
     function handleClick(index: number) {
         if (!id) {
             return;
@@ -56,22 +50,21 @@ const TicTacToe: React.FC = () => {
         })
     }
 
-    console.log(gameData)
-
+    console.log('gameData.board', gameData?.board, Array.isArray(gameData?.board));
     function handleReset() {
         // setBoard(emptyBoard);
-        setXIsNext(true);
+        // setXIsNext(true);
         setBoardAnimKey(k => k + 1);
     }
 
-    let status;
-    if (winner) {
-        status = `Winner: ${winner}`;
-    } else if (board.every(Boolean)) {
-        status = "It's a draw!";
-    } else {
-        status = `Next player: ${xIsNext ? 'X' : 'O'}`;
-    }
+    // let status;
+    // if (winner) {
+    //     status = `Winner: ${winner}`;
+    // } else if ((gameData?.board ?? emptyBoard).every(Boolean)) {
+    //     status = "It's a draw!";
+    // } else {
+    //     status = `Next player: ${gameData?.turn === 'X' ? 'X' : 'O'}`;
+    // }
 
     // Win line SVG
     const winLineSVG = winLine ? (() => {
@@ -97,9 +90,18 @@ const TicTacToe: React.FC = () => {
         );
     })() : null;
 
+    console.log('gameData?.turn', gameData?.turn, address);
+
     return (
         <div className="flex flex-col items-center">
-            <div className="mb-4 text-lg font-semibold text-gray-700">{status}</div>
+            <div className="mb-4 text-lg font-semibold text-gray-700">
+
+
+                {
+                    gameData?.turn && address &&
+                    (gameData.turn.toLowerCase() === address.toLowerCase() ? 'Your turn' : 'Opponent\'s turn')
+                }
+            </div>
             <div className="relative w-[270px] h-[270px]">
                 <svg
                     key={boardAnimKey}
@@ -145,8 +147,9 @@ const TicTacToe: React.FC = () => {
                     {/* Win line */}
                     {winLineSVG}
                 </svg>
+
                 <div className="absolute top-0 left-0 w-full h-full grid grid-cols-3 grid-rows-3 z-10">
-                    {board.map((val, i) => (
+                    {gameData?.board && [...gameData.board].map((val, i) => (
                         <Square
                             key={i}
                             value={val}
