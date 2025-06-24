@@ -222,7 +222,7 @@ export const useGameMutation = () => {
                 queryClient.refetchQueries({ queryKey: ["ttt", "game", data.id.toString()] })
             }
         },
-        onError: (error, variables) => {
+        onError: (_e, variables) => {
             if (variables.type === "play") {
                 queryClient.setQueryData(["ttt", "game", variables.id.toString()], (oldData: {
                     board: Board
