@@ -15,6 +15,7 @@
     "@tanstack/react-router": "^1.121.34",
     "@tanstack/react-router-devtools": "^1.121.34",
     "clsx": "^2.1.1",
+    "lucide-react": "^0.522.0",
     "nuqs": "^2.4.3",
     "ox": "^0.8.2",
     "porto": "^0.0.29",

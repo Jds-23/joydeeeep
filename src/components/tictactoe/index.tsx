@@ -110,6 +110,7 @@ const TicTacToe: React.FC = () => {
                 <>
                     <div className="mb-4 text-lg font-semibold text-gray-700">Create new game</div>
                     <form
+                        className="flex gap-2 items-center"
                         onSubmit={(e) => {
                             e.preventDefault();
                             const formData = new FormData(e.target as HTMLFormElement);
@@ -120,9 +121,9 @@ const TicTacToe: React.FC = () => {
                             })
                         }}
                     >
-                        <input className='border-2 border-gray-300 rounded-md px-2 py-1' type="text" name="opponent" placeholder="Opponent address" />
+                        <input className='border-2 border-black rounded-md px-2 py-1' type="text" name="opponent" placeholder="Opponent address" />
                         <Button
-                            className="mt-6 px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                            className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
                             type="submit"
                         >
                             New Game
@@ -203,7 +204,7 @@ const TicTacToe: React.FC = () => {
 
             {/* 4. Game draw or winner available */}
             {address && id && ((gameData?.whoWon && gameData.whoWon !== zeroAddress) || (gameData?.board ?? emptyBoard).every(Boolean)) && (
-                <>
+                <div>
                     <div className="mb-4 text-lg font-semibold text-gray-700">
                         {status}
                     </div>
@@ -216,7 +217,7 @@ const TicTacToe: React.FC = () => {
                     >
                         Create New Game
                     </button>
-                </>
+                </div>
             )}
         </div>
     );
