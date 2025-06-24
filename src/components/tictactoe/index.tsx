@@ -4,9 +4,9 @@ import { Connect } from '../Connect';
 import Square from './Square';
 import { useQueryState } from 'nuqs'
 import { useAccount } from 'wagmi';
-import { useQueryClient } from '@tanstack/react-query';
 import { zeroAddress } from 'viem';
 import { ellipsis } from '../../lib/utils/ellipsis';
+import { Button } from '../ui/button';
 
 const lines = [
     [0, 1, 2],
@@ -95,153 +95,129 @@ const TicTacToe: React.FC = () => {
 
     return (
         <div className="flex flex-col items-center">
-            {
-                address ?
-                    <>
-                        <div className="mb-4 text-lg font-semibold text-gray-700">
-                            {
-                                status
-                            }
-                        </div>
-                        <div className="relative w-[270px] h-[270px]">
-                            <svg
-                                key={boardAnimKey}
-                                className={`absolute top-0 left-0 w-full h-full pointer-events-none z-20`}
-                                viewBox="0 0 150 150"
-                            >
-                                {/* Vertical line 1 */}
-                                <line
-                                    x1="50" y1="150" x2="50" y2="150"
-                                    className="stroke-gray-500"
-                                    strokeWidth="2"
-                                    strokeLinecap="round"
-                                >
-                                    <animate attributeName="y1" from="150" to="0" dur="0.5s" fill="freeze" />
-                                </line>
-                                {/* Vertical line 2 (reverse growth) */}
-                                <line
-                                    x1="100" y1="0" x2="100" y2="0"
-                                    className="stroke-gray-500"
-                                    strokeWidth="2"
-                                    strokeLinecap="round"
-                                >
-                                    <animate attributeName="y2" from="0" to="150" dur="0.5s" fill="freeze" />
-                                </line>
-                                {/* Horizontal line 1 */}
-                                <line
-                                    x1="0" y1="50" x2="0" y2="50"
-                                    className="stroke-gray-500"
-                                    strokeWidth="2"
-                                    strokeLinecap="round"
-                                >
-                                    <animate attributeName="x2" from="0" to="150" dur="0.5s" fill="freeze" />
-                                </line>
-                                {/* Horizontal line 2 (reverse growth) */}
-                                <line
-                                    x1="150" y1="100" x2="150" y2="100"
-                                    className="stroke-gray-500"
-                                    strokeWidth="2"
-                                    strokeLinecap="round"
-                                >
-                                    <animate attributeName="x1" from="150" to="0" dur="0.5s" fill="freeze" />
-                                </line>
-                                {/* Win line */}
-                                {winLineSVG}
-                            </svg>
+            {/* Always show Connect component at the top for sign in/out and address/copy UI */}
+            <div className="mb-4">
+                <Connect />
+            </div>
 
-                            <div className="absolute top-0 left-0 w-full h-full grid grid-cols-3 grid-rows-3 z-10">
-                                {gameData?.board && [...gameData.board].map((val, i) => (
-                                    <Square
-                                        key={i}
-                                        value={val}
-                                        onClick={() => {
-                                            if (val) {
-                                                return;
-                                            }
-                                            handleClick(i)
-                                        }}
-                                        highlight={winLine?.includes(i)}
-                                    />
-                                ))}
-                            </div>
-                        </div>
-                    </> : <>
-                        <Connect />
-                        <form
-                            onSubmit={(e) => {
-                                e.preventDefault();
-                                const formData = new FormData(e.target as HTMLFormElement);
-                                const opponent = formData.get("opponent") as `0x${string}`;
-                                gameMutation({
-                                    type: "newGame",
-                                    opponent: opponent
-                                })
-                            }}
+            {/* 1. No address present */}
+            {!address && (
+                <div className="mb-4 text-lg font-semibold text-gray-700">Sign to play TicTacToe</div>
+            )}
+
+            {/* 2. Address available, no id available */}
+            {address && !id && (
+                <>
+                    <div className="mb-4 text-lg font-semibold text-gray-700">Create new game</div>
+                    <form
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            const formData = new FormData(e.target as HTMLFormElement);
+                            const opponent = formData.get("opponent") as `0x${string}`;
+                            gameMutation({
+                                type: "newGame",
+                                opponent: opponent
+                            })
+                        }}
+                    >
+                        <input className='border-2 border-gray-300 rounded-md px-2 py-1' type="text" name="opponent" placeholder="Opponent address" />
+                        <Button
+                            className="mt-6 px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                            type="submit"
                         >
-                            <input className='border-2 border-gray-300 rounded-md px-2 py-1' type="text" name="opponent" placeholder="Opponent address" />
-                            <button
-                                className="mt-6 px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-                                type="submit"
+                            New Game
+                        </Button>
+                    </form>
+                </>
+            )}
+
+            {/* 3. id available, no winner (game in progress) */}
+            {address && id && !((gameData?.whoWon && gameData.whoWon !== zeroAddress) || (gameData?.board ?? emptyBoard).every(Boolean)) && (
+                <>
+                    <div className="mb-4 text-lg font-semibold text-gray-700">
+                        {status}
+                    </div>
+                    <div className="relative w-[270px] h-[270px]">
+                        <svg
+                            key={boardAnimKey}
+                            className={`absolute top-0 left-0 w-full h-full pointer-events-none z-20`}
+                            viewBox="0 0 150 150"
+                        >
+                            {/* Vertical line 1 */}
+                            <line
+                                x1="50" y1="150" x2="50" y2="150"
+                                className="stroke-gray-500"
+                                strokeWidth="2"
+                                strokeLinecap="round"
                             >
-                                New Game
-                            </button>
-                        </form>
-                    </>
-            }
+                                <animate attributeName="y1" from="150" to="0" dur="0.5s" fill="freeze" />
+                            </line>
+                            {/* Vertical line 2 (reverse growth) */}
+                            <line
+                                x1="100" y1="0" x2="100" y2="0"
+                                className="stroke-gray-500"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                            >
+                                <animate attributeName="y2" from="0" to="150" dur="0.5s" fill="freeze" />
+                            </line>
+                            {/* Horizontal line 1 */}
+                            <line
+                                x1="0" y1="50" x2="0" y2="50"
+                                className="stroke-gray-500"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                            >
+                                <animate attributeName="x2" from="0" to="150" dur="0.5s" fill="freeze" />
+                            </line>
+                            {/* Horizontal line 2 (reverse growth) */}
+                            <line
+                                x1="150" y1="100" x2="150" y2="100"
+                                className="stroke-gray-500"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                            >
+                                <animate attributeName="x1" from="150" to="0" dur="0.5s" fill="freeze" />
+                            </line>
+                            {/* Win line */}
+                            {winLineSVG}
+                        </svg>
+                        <div className="absolute top-0 left-0 w-full h-full grid grid-cols-3 grid-rows-3 z-10">
+                            {gameData?.board && [...gameData.board].map((val, i) => (
+                                <Square
+                                    key={i}
+                                    value={val}
+                                    onClick={() => {
+                                        if (val) {
+                                            return;
+                                        }
+                                        handleClick(i)
+                                    }}
+                                    highlight={winLine?.includes(i)}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                </>
+            )}
 
-
-            {/* <button
-                className="mt-6 px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-                onClick={() => {
-                    gameMutation({
-                        type: "newGame",
-                        opponent: "0xa31aBd41FfA26cC22C6e78761756985275513C88"
-                    })
-                }}
-            >
-                New Game
-            </button> */}
-            {/* Tailwind custom keyframes for SVG draw animations */}
-            <style>{`
-        @layer utilities {
-          @keyframes draw-x {
-            0% { stroke-dasharray: 0 56; }
-            50% { stroke-dasharray: 28 28; }
-            100% { stroke-dasharray: 56 0; }
-          }
-          .animate-draw-x line {
-            stroke-dasharray: 56;
-            stroke-dashoffset: 56;
-            animation: draw-x 0.4s cubic-bezier(.4,0,.2,1) forwards;
-          }
-          @keyframes draw-o {
-            0% { stroke-dasharray: 0 100; }
-            100% { stroke-dasharray: 100 0; }
-          }
-          .animate-draw-o circle {
-            stroke-dasharray: 100;
-            stroke-dashoffset: 100;
-            animation: draw-o 0.4s cubic-bezier(.4,0,.2,1) forwards;
-          }
-          @keyframes draw-win {
-            0% { stroke-dasharray: 0 200; }
-            100% { stroke-dasharray: 200 0; }
-          }
-          .animate-draw-win {
-            stroke-dasharray: 200;
-            stroke-dashoffset: 200;
-            animation: draw-win 0.5s cubic-bezier(.4,0,.2,1) forwards;
-          }
-          @keyframes board-lines {
-            0% { opacity: 0; transform: scaleX(0.7) scaleY(0.7); }
-            60% { opacity: 1; transform: scaleX(1.05) scaleY(1.05); }
-            100% { opacity: 1; transform: scaleX(1) scaleY(1); }
-          }
-          .animate-board-lines {
-            animation: board-lines 0.6s cubic-bezier(.4,0,.2,1);
-          }
-        }
-      `}</style>
+            {/* 4. Game draw or winner available */}
+            {address && id && ((gameData?.whoWon && gameData.whoWon !== zeroAddress) || (gameData?.board ?? emptyBoard).every(Boolean)) && (
+                <>
+                    <div className="mb-4 text-lg font-semibold text-gray-700">
+                        {status}
+                    </div>
+                    <button
+                        className="mt-6 px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                        onClick={() => {
+                            // Reset game state by removing id from query state
+                            window.location.search = '';
+                        }}
+                    >
+                        Create New Game
+                    </button>
+                </>
+            )}
         </div>
     );
 };

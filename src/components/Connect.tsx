@@ -1,9 +1,10 @@
-import { useAccount, useConnect, useDisconnect, useEnsName } from 'wagmi'
+import { useAccount, useDisconnect, useConnect, useEnsName } from 'wagmi'
 import { permissions } from '../constant/permissions/ttt'
 import { useGrantPermissions } from 'porto/wagmi/Hooks'
 import { baseSepolia } from 'viem/chains'
 import { ellipsis } from '../lib/utils/ellipsis'
 import { useClipboard } from '../lib/hooks/useClipboard'
+import { Button } from './ui/button'
 
 export function Connect() {
     const connect = useConnect()
@@ -26,17 +27,21 @@ export function Connect() {
 
     if (!address) {
         return (
-            <button
-                className="mt-6 px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+            <Button
+                className="bg-blue-500 text-white hover:bg-blue-600"
                 onClick={() =>
                     connect.connect({
                         connector,
+                        // @ts-ignore
+                        capabilities: {
+                            grantPermissions: permissions(baseSepolia),
+                        },
                     })
                 }
                 type="button"
             >
                 Sign in
-            </button>
+            </Button>
         )
     }
 
@@ -44,51 +49,51 @@ export function Connect() {
         if (data) {
             return (
                 <div className="flex flex-row gap-2">
-                    <button
-                        className="mt-6 px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                    <Button
+                        className="bg-blue-500 text-white hover:bg-blue-600"
                         type="button"
                         onClick={() => {
                             copy(address)
                         }}
                     >
                         {data}
-                    </button>
-                    <button
-                        className="mt-6 px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                    </Button>
+                    <Button
+                        className="bg-blue-500 text-white hover:bg-blue-600"
                         onClick={() => grantPermissions(permissions(baseSepolia))}
                         type="button"
                     >
                         Grant Permissions
-                    </button>
+                    </Button>
                 </div>
             )
         }
         return (
             <div className="flex flex-row gap-2">
-                <button
-                    className="mt-6 px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                <Button
+                    className="bg-blue-500 text-white hover:bg-blue-600"
                     type="button"
                     onClick={() => {
                         copy(address)
                     }}
                 >
                     {ellipsis(address, 6)}
-                </button>
-                <button
-                    className="mt-6 px-6 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+                </Button>
+                <Button
+                    className="bg-red-500 text-white hover:bg-red-600"
                     onClick={() => {
                         disconnect.disconnect()
                     }}
                 >
                     Sign out
-                </button>
-                <button
-                    className="mt-6 px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                </Button>
+                <Button
+                    className="bg-blue-500 text-white hover:bg-blue-600"
                     onClick={() => grantPermissions(permissions(baseSepolia))}
                     type="button"
                 >
                     Grant Permissions
-                </button>
+                </Button>
             </div>
         )
     }
