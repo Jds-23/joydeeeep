@@ -1,5 +1,9 @@
 @import "tailwindcss";
+@import "./font.css";
 
+@theme {
+  --font-sans: "MartianGrotesk",ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
 @layer utilities {
   @keyframes draw-x {
     0% { stroke-dasharray: 0 56; }
