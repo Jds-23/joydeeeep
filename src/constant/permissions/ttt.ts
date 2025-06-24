@@ -1,0 +1,12 @@
+import { ttt_contract_address } from '../index'
+import { type Chain } from 'viem/chains'
+
+export const permissions = (
+    chain: Chain
+) =>
+    ({
+        expiry: Math.floor(Date.now() / 1_000) + 60 * 60, // 1 hour
+        permissions: {
+            calls: [{ to: ttt_contract_address[chain.id] }],
+        },
+    }) as const
