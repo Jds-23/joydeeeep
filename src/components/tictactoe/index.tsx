@@ -104,7 +104,7 @@ interface TicTacToeStatusProps {
     status: string;
 }
 const TicTacToeStatus: React.FC<TicTacToeStatusProps> = ({ status }) => (
-    <div className="mb-4 text-lg font-semibold text-gray-700">{status}</div>
+    <div className="mb-4 text-lg text-center font-semibold text-gray-700">{status}</div>
 );
 
 interface NewGameFormProps {
@@ -143,7 +143,7 @@ const TicTacToe: React.FC = () => {
     const [gameId] = useQueryState("id");
     const id = gameId ? BigInt(gameId) : undefined;
     const { data: gameData } = useGameQuery(id);
-    const [boardAnimKey, setBoardAnimKey] = useState(0);
+    const [boardAnimKey,] = useState(0);
     const result = calculateWinner(gameData?.board ?? emptyBoard);
     const winLine = result?.line;
     const { mutate: gameMutation } = useGameMutation();
@@ -158,8 +158,15 @@ const TicTacToe: React.FC = () => {
     }, [gameMutation]);
 
     let status;
-    if (gameData?.whoWon && gameData.whoWon !== zeroAddress) {
-        status = `Winner: ${ellipsis(gameData.whoWon, 4)}`;
+    if (!address) {
+        status = "Sign to play TicTacToe";
+    } else if (address && !id) {
+        status = "Create new game";
+    } else if (address && id && gameData?.players && !gameData.players.includes(address)) {
+        status = "Not your game";
+    } else if (gameData?.whoWon && gameData.players && gameData.whoWon !== zeroAddress) {
+        const { whoWon, players } = gameData;
+        status = `Winner: ${whoWon === players[0] ? 'X' : 'O'} ${ellipsis(whoWon, 4)}`;
     } else if ((gameData?.board ?? emptyBoard).every(Boolean)) {
         status = "It's a draw!";
     } else if (gameData?.turn && gameData.players) {
@@ -170,17 +177,25 @@ const TicTacToe: React.FC = () => {
     }
 
     return (
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center h-80">
             <div className="mb-4">
                 <Connect />
             </div>
-            {!address && <TicTacToeStatus status="Sign to play TicTacToe" />}
+            {!address && <TicTacToeStatus status={status} />}
             {address && !id && (
                 <>
-                    <TicTacToeStatus status="Create new game" />
+                    <TicTacToeStatus status={status} />
                     <NewGameForm onNewGame={handleNewGame} />
                 </>
             )}
+
+            {address && id && gameData?.players && !gameData.players.includes(address) && (
+                <>
+                    <TicTacToeStatus status={status} />
+                    <NewGameForm onNewGame={handleNewGame} />
+                </>
+            )}
+
             {address && id && !((gameData?.whoWon && gameData.whoWon !== zeroAddress) || (gameData?.board ?? emptyBoard).every(Boolean)) && (
                 <>
                     <TicTacToeStatus status={status} />
@@ -193,15 +208,10 @@ const TicTacToe: React.FC = () => {
                 </>
             )}
             {address && id && ((gameData?.whoWon && gameData.whoWon !== zeroAddress) || (gameData?.board ?? emptyBoard).every(Boolean)) && (
-                <div>
+                <>
                     <TicTacToeStatus status={status} />
-                    <Button
-                        className="mt-6 px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-                        onClick={() => { window.location.search = ''; }}
-                    >
-                        Create New Game
-                    </Button>
-                </div>
+                    <NewGameForm onNewGame={handleNewGame} />
+                </>
             )}
         </div>
     );

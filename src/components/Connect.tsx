@@ -142,7 +142,7 @@ export const Connect: React.FC = () => {
                 onClick={() =>
                     connect.connect({
                         connector,
-                        // @ts-ignore
+                        // @ts-expect-error porto types are not updated
                         capabilities: {
                             grantPermissions: permissions(baseSepolia),
                         },

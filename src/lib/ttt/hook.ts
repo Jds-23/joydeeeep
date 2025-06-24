@@ -205,7 +205,11 @@ export const useGameMutation = () => {
         },
         onSuccess: (data) => {
             if (data.type === "play") {
-                queryClient.setQueryData(["ttt", "game", data.id.toString()], (oldData: any) => {
+                queryClient.setQueryData(["ttt", "game", data.id.toString()], (oldData: {
+                    board: Board
+                    players: [`0x${string}`, `0x${string}`]
+                    turn: `0x${string}`
+                }) => {
                     const { players, turn } = oldData;
                     return {
                         ...oldData,
@@ -218,7 +222,7 @@ export const useGameMutation = () => {
                 queryClient.refetchQueries({ queryKey: ["ttt", "game", data.id.toString()] })
             }
         },
-        onError: (error, variables, context) => {
+        onError: (error, variables) => {
             if (variables.type === "play") {
                 queryClient.setQueryData(["ttt", "game", variables.id.toString()], (oldData: {
                     board: Board
