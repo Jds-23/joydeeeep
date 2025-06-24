@@ -8,7 +8,9 @@ import { hexToBinary } from "../utils/hexToBin";
 import { zeroAddress } from "viem";
 import { useQueryState } from "nuqs";
 
-export const emptyBoard = Array(9).fill(null);
+export type Board = ('X' | 'O' | 'LX' | 'LO' | null)[]
+
+export const emptyBoard: Board = Array(9).fill(null);
 
 export const useGameQuery = (id: bigint | undefined) => {
     const config = useConfig()
@@ -42,7 +44,7 @@ export const useGameQuery = (id: bigint | undefined) => {
             })
 
             const errors: Error[] = []
-            const board: ('X' | 'O' | null)[] = emptyBoard;
+            const board: Board = emptyBoard;
             let whoWon: `0x${string}` | null = null;
             let turn: `0x${string}` | null = null;
             let players: [`0x${string}`, `0x${string}`] | null = null;
@@ -119,7 +121,7 @@ type GameMutationResult = {
     id: bigint
 } | {
     type: "play"
-    board: ('X' | 'O' | null)[]
+    board: Board
     id: bigint
 }
 
@@ -162,6 +164,17 @@ export const useGameMutation = () => {
                         }
                     })
                 case "play":
+                    queryClient.setQueryData(["ttt", "game", action.id.toString()], (oldData: {
+                        board: Board
+                        players: [`0x${string}`, `0x${string}`]
+                    }) => {
+                        const { players, board } = oldData;
+                        const loader = address === players[0] ? 'LX' : 'LO';
+                        return {
+                            ...oldData,
+                            board: board.map((val, i) => i === action.position ? loader : val),
+                        }
+                    })
                     return await sendCallsAsync({
                         calls: [
                             {
@@ -176,7 +189,7 @@ export const useGameMutation = () => {
                         console.log('play', status.receipts?.[0]?.logs.find(log => log.address.toLowerCase() === ttt_contract_address[config.chains[0].id].toLowerCase())?.data)
                         let boardInBinary = hexToBinary(status.receipts?.[0]?.logs.find(log => log.address.toLowerCase() === ttt_contract_address[config.chains[0].id].toLowerCase())?.data?.replace(/^0x/i, '') ?? "0")
                         boardInBinary = boardInBinary.split('').reverse().join('').substring(0, 18).padEnd(18, '0');
-                        const board: ('X' | 'O' | null)[] = emptyBoard;
+                        const board: Board = emptyBoard;
                         for (let i = 0; i < boardInBinary.length; i++) {
                             if (boardInBinary[i] === '1') {
                                 board[i % 9] = i < 9 ? 'X' : 'O';
@@ -203,6 +216,19 @@ export const useGameMutation = () => {
             } else if (data.type === "newGame") {
                 setGameId(data.id.toString())
                 queryClient.refetchQueries({ queryKey: ["ttt", "game", data.id.toString()] })
+            }
+        },
+        onError: (error, variables, context) => {
+            if (variables.type === "play") {
+                queryClient.setQueryData(["ttt", "game", variables.id.toString()], (oldData: {
+                    board: Board
+                    players: [`0x${string}`, `0x${string}`]
+                }) => {
+                    return {
+                        ...oldData,
+                        board: oldData.board.map((val, i) => i === variables.position ? null : val),
+                    }
+                })
             }
         }
     })
