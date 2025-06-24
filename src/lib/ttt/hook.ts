@@ -6,6 +6,7 @@ import { TicTacToe } from "../../constant/abis/tictactoe";
 import { multicall, waitForCallsStatus } from "wagmi/actions";
 import { hexToBinary } from "../utils/hexToBin";
 import { zeroAddress } from "viem";
+import { useQueryState } from "nuqs";
 
 export const emptyBoard = Array(9).fill(null);
 
@@ -127,6 +128,8 @@ export const useGameMutation = () => {
     const { address } = useAccount()
     const { sendCallsAsync } = useSendCalls()
     const queryClient = useQueryClient()
+    const [, setGameId] = useQueryState("id");
+
 
     return useMutation<GameMutationResult, Error, GameAction>({
         mutationKey: ["ttt", "newGame", address],
@@ -197,6 +200,9 @@ export const useGameMutation = () => {
                         turn: turn === players[0] ? players[1] : players[0]
                     }
                 })
+            } else if (data.type === "newGame") {
+                setGameId(data.id.toString())
+                queryClient.refetchQueries({ queryKey: ["ttt", "game", data.id.toString()] })
             }
         }
     })
