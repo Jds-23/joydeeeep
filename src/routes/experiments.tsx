@@ -6,6 +6,15 @@ export const Route = createFileRoute('/experiments')({
 
 const experiments = [
     {
+        id: "EXP0005",
+        title: "ZKEmail Recovery for Porto Account",
+        date: "2025.08.28",
+        links: [
+            { text: "Github", href: "https://github.com/Jds-23/account/blob/feat/zkemail-account-recovery/test/ZKEmailSigner.t.sol", external: true },
+            { text: "Substack", href: "https://joydeepsingha.substack.com/p/zk-email-recovery-for-porto", external: true }
+        ]
+    },
+    {
         id: "EXP0004",
         title: "Optimized Onchain TicTacToe game with Porto",
         date: "2024.06.24",
