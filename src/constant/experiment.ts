@@ -27,7 +27,7 @@ export const experiments: Experiment[] = [
     {
         id: "EXP0004",
         title: "Optimized Onchain TicTacToe game with Porto",
-        date: "2024.06.24",
+        date: "2025.06.24",
         description: "A fully on-chain TicTacToe game built with smart contracts and integrated with Porto wallet. Features optimized game state encoding, real-time multiplayer, and seamless Web3 interactions with minimal gas costs.",
         links: [
             { text: "Play", href: "/tictactoe", internal: true, external: false },
@@ -38,7 +38,7 @@ export const experiments: Experiment[] = [
     {
         id: "EXP0003",
         title: "Permissioned Telegram bot with Porto",
-        date: "2024.03.25",
+        date: "2025.03.25",
         description: "A Telegram bot leveraging EIP-7702 for account abstraction with Porto wallet integration. Enables users to execute blockchain transactions directly from Telegram with fine-grained permission controls and spending limits.",
         links: [
             { text: "See Demo", href: "https://x.com/0xJoydeeeep/status/1904494591941996669", external: true },
