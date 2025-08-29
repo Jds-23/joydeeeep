@@ -10,17 +10,13 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TictactoeRouteImport } from './routes/tictactoe'
-import { Route as ExperimentsRouteImport } from './routes/experiments'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ExperimentsIndexRouteImport } from './routes/experiments/index'
+import { Route as ExperimentsIdRouteImport } from './routes/experiments/$id'
 
 const TictactoeRoute = TictactoeRouteImport.update({
   id: '/tictactoe',
   path: '/tictactoe',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ExperimentsRoute = ExperimentsRouteImport.update({
-  id: '/experiments',
-  path: '/experiments',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -28,35 +24,49 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ExperimentsIndexRoute = ExperimentsIndexRouteImport.update({
+  id: '/experiments/',
+  path: '/experiments/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExperimentsIdRoute = ExperimentsIdRouteImport.update({
+  id: '/experiments/$id',
+  path: '/experiments/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/experiments': typeof ExperimentsRoute
   '/tictactoe': typeof TictactoeRoute
+  '/experiments/$id': typeof ExperimentsIdRoute
+  '/experiments': typeof ExperimentsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/experiments': typeof ExperimentsRoute
   '/tictactoe': typeof TictactoeRoute
+  '/experiments/$id': typeof ExperimentsIdRoute
+  '/experiments': typeof ExperimentsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/experiments': typeof ExperimentsRoute
   '/tictactoe': typeof TictactoeRoute
+  '/experiments/$id': typeof ExperimentsIdRoute
+  '/experiments/': typeof ExperimentsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/experiments' | '/tictactoe'
+  fullPaths: '/' | '/tictactoe' | '/experiments/$id' | '/experiments'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/experiments' | '/tictactoe'
-  id: '__root__' | '/' | '/experiments' | '/tictactoe'
+  to: '/' | '/tictactoe' | '/experiments/$id' | '/experiments'
+  id: '__root__' | '/' | '/tictactoe' | '/experiments/$id' | '/experiments/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  ExperimentsRoute: typeof ExperimentsRoute
   TictactoeRoute: typeof TictactoeRoute
+  ExperimentsIdRoute: typeof ExperimentsIdRoute
+  ExperimentsIndexRoute: typeof ExperimentsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -68,13 +78,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TictactoeRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/experiments': {
-      id: '/experiments'
-      path: '/experiments'
-      fullPath: '/experiments'
-      preLoaderRoute: typeof ExperimentsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -82,13 +85,28 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/experiments/': {
+      id: '/experiments/'
+      path: '/experiments'
+      fullPath: '/experiments'
+      preLoaderRoute: typeof ExperimentsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/experiments/$id': {
+      id: '/experiments/$id'
+      path: '/experiments/$id'
+      fullPath: '/experiments/$id'
+      preLoaderRoute: typeof ExperimentsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  ExperimentsRoute: ExperimentsRoute,
   TictactoeRoute: TictactoeRoute,
+  ExperimentsIdRoute: ExperimentsIdRoute,
+  ExperimentsIndexRoute: ExperimentsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

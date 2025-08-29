@@ -1,4 +1,3 @@
-import { formatGwei } from 'viem'
 import { ttt_contract_address } from '../index'
 import { type Chain } from 'viem/chains'
 
