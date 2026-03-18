@@ -23,5 +23,11 @@ export const redirects: Redirect[] = [
         link: "https://x.com/0xJoydeeeep",
         loadingMessage: "Redirecting to Twitter...",
         // Uses default 500ms delay
-    }
+    },
+    {
+        id: "multiverse-video",
+        link: "https://youtu.be/kZ7jRes7904",
+        loadingMessage: "Redirecting to YouTube...",
+        // Uses default 500ms delay
+    },
 ];
