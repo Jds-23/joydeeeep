@@ -15,6 +15,16 @@ export interface Experiment {
 
 export const experiments: Experiment[] = [
     {
+        id: "EXP0006",
+        title: "The Multiverse Market",
+        date: "2026.03.19",
+        description: "A Uniswap v4 Hook for Conditional Finance",
+        links: [
+            { text: "Github", href: "https://github.com/Jds-23/multiverse-market-hook", external: true },
+            { text: "Live", href: "https://multiverse.joydeeeep.com/", external: true }
+        ]
+    },
+    {
         id: "EXP0005",
         title: "ZKEmail Recovery for Porto Account",
         date: "2025.08.28",
