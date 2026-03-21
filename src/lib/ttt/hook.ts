@@ -1,34 +1,31 @@
-import { useAccount, useConfig, useSendCalls } from "wagmi";
-
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ttt_contract_address } from "../../constant";
 import { TicTacToe } from "../../constant/abis/tictactoe";
-import { multicall, waitForCallsStatus } from "wagmi/actions";
 import { hexToBinary } from "../utils/hexToBin";
-import { zeroAddress } from "viem";
+import { encodeFunctionData, zeroAddress } from "viem";
 import { useQueryState } from "nuqs";
+import { useZeroDev } from "../zerodev/provider";
+import { CHAIN } from "../zerodev/constants";
 
 export type Board = ('X' | 'O' | 'LX' | 'LO' | null)[]
 
 export const emptyBoard: Board = Array(9).fill(null);
 
+const contractAddress = ttt_contract_address[CHAIN.id]
+
 export const useGameQuery = (id: bigint | undefined) => {
-    const config = useConfig()
-    const { address } = useAccount()
+    const { publicClient, address } = useZeroDev()
     return useQuery({
         queryKey: ["ttt", "game", id?.toString()],
         queryFn: async () => {
-            if (!config) {
-                return undefined;
-            }
             if (!id) {
                 return undefined;
             }
             const contracts = {
-                address: ttt_contract_address[config.chains[0].id], // get chain of current chain
+                address: contractAddress,
                 abi: TicTacToe,
             } as const
-            const results = await multicall(config, {
+            const results = await publicClient.multicall({
                 contracts: [
                     {
                         ...contracts,
@@ -126,12 +123,9 @@ type GameMutationResult = {
 }
 
 export const useGameMutation = () => {
-    const config = useConfig()
-    const { address } = useAccount()
-    const { sendCallsAsync } = useSendCalls()
+    const { address, kernelClient } = useZeroDev()
     const queryClient = useQueryClient()
     const [, setGameId] = useQueryState("id");
-
 
     return useMutation<GameMutationResult, Error, GameAction>({
         mutationKey: ["ttt", "newGame", address],
@@ -141,29 +135,35 @@ export const useGameMutation = () => {
             if (!address) {
                 throw new Error("No address");
             }
-            if (!config) {
-                throw new Error("No config");
+            if (!kernelClient) {
+                throw new Error("Not connected");
             }
             switch (action.type) {
-                case "newGame":
-                    return await sendCallsAsync({
-                        calls: [
+                case "newGame": {
+                    const hash = await kernelClient.sendUserOperation({
+                        callData: await kernelClient.account!.encodeCalls([
                             {
-                                to: ttt_contract_address[config.chains[0].id],
-                                abi: TicTacToe,
-                                functionName: "newGame",
-                                args: [address, action.opponent]
+                                to: contractAddress,
+                                value: 0n,
+                                data: encodeFunctionData({
+                                    abi: TicTacToe,
+                                    functionName: "newGame",
+                                    args: [address, action.opponent],
+                                }),
                             }
-                        ]
-                    }).then(async result => {
-                        const status = await waitForCallsStatus(config, result)
-                        console.log('newGame', status.receipts?.[0]?.logs.find(log => log.address.toLowerCase() === ttt_contract_address[config.chains[0].id].toLowerCase())?.data)
-                        return {
-                            type: "newGame",
-                            id: BigInt(parseInt(status.receipts?.[0]?.logs.find(log => log.address.toLowerCase() === ttt_contract_address[config.chains[0].id].toLowerCase())?.data?.replace(/^0x/i, '') ?? "0", 16))
-                        }
+                        ]),
                     })
-                case "play":
+                    const receipt = await kernelClient.waitForUserOperationReceipt({ hash })
+                    const log = receipt.receipt.logs.find(
+                        (l: { address: string; data: string }) => l.address.toLowerCase() === contractAddress.toLowerCase()
+                    )
+                    console.log('newGame', log?.data)
+                    return {
+                        type: "newGame",
+                        id: BigInt(parseInt(log?.data?.replace(/^0x/i, '') ?? "0", 16))
+                    }
+                }
+                case "play": {
                     queryClient.setQueryData(["ttt", "game", action.id.toString()], (oldData: {
                         board: Board
                         players: [`0x${string}`, `0x${string}`]
@@ -175,32 +175,38 @@ export const useGameMutation = () => {
                             board: board.map((val, i) => i === action.position ? loader : val),
                         }
                     })
-                    return await sendCallsAsync({
-                        calls: [
+                    const hash = await kernelClient.sendUserOperation({
+                        callData: await kernelClient.account!.encodeCalls([
                             {
-                                to: ttt_contract_address[config.chains[0].id],
-                                abi: TicTacToe,
-                                functionName: "play",
-                                args: [action.id, action.position]
+                                to: contractAddress,
+                                value: 0n,
+                                data: encodeFunctionData({
+                                    abi: TicTacToe,
+                                    functionName: "play",
+                                    args: [action.id, action.position],
+                                }),
                             }
-                        ]
-                    }).then(async result => {
-                        const status = await waitForCallsStatus(config, result)
-                        console.log('play', status.receipts?.[0]?.logs.find(log => log.address.toLowerCase() === ttt_contract_address[config.chains[0].id].toLowerCase())?.data)
-                        let boardInBinary = hexToBinary(status.receipts?.[0]?.logs.find(log => log.address.toLowerCase() === ttt_contract_address[config.chains[0].id].toLowerCase())?.data?.replace(/^0x/i, '') ?? "0")
-                        boardInBinary = boardInBinary.split('').reverse().join('').substring(0, 18).padEnd(18, '0');
-                        const board: Board = emptyBoard;
-                        for (let i = 0; i < boardInBinary.length; i++) {
-                            if (boardInBinary[i] === '1') {
-                                board[i % 9] = i < 9 ? 'X' : 'O';
-                            }
-                        }
-                        return {
-                            type: "play",
-                            board,
-                            id: action.id
-                        }
+                        ]),
                     })
+                    const receipt = await kernelClient.waitForUserOperationReceipt({ hash })
+                    const log = receipt.receipt.logs.find(
+                        (l: { address: string; data: string }) => l.address.toLowerCase() === contractAddress.toLowerCase()
+                    )
+                    console.log('play', log?.data)
+                    let boardInBinary = hexToBinary(log?.data?.replace(/^0x/i, '') ?? "0")
+                    boardInBinary = boardInBinary.split('').reverse().join('').substring(0, 18).padEnd(18, '0');
+                    const board: Board = emptyBoard;
+                    for (let i = 0; i < boardInBinary.length; i++) {
+                        if (boardInBinary[i] === '1') {
+                            board[i % 9] = i < 9 ? 'X' : 'O';
+                        }
+                    }
+                    return {
+                        type: "play",
+                        board,
+                        id: action.id
+                    }
+                }
             }
         },
         onSuccess: (data) => {
@@ -237,28 +243,3 @@ export const useGameMutation = () => {
         }
     })
 }
-
-// export const usePlayMutation = () => {
-//     const config = useConfig()
-//     return useMutation({
-//         mutationFn: async (id: bigint) => {
-//             if (!config) {
-//                 throw new Error("No config");
-//             }
-//             const contracts = {
-//                 address: ttt_contract_address[config.chains[0].id],
-//                 abi: TicTacToe,
-//             } as const
-
-//             const result = await sendTransaction(config, {
-//             }
-//     })
-// }
-
-// query
-// getBoard
-// whoWon
-
-// mutations
-// newGame
-// play

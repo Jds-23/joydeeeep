@@ -3,7 +3,7 @@ import { emptyBoard, useGameQuery, useGameMutation, type Board } from '../../lib
 import { Connect } from '../Connect';
 import Square from './Square';
 import { useQueryState } from 'nuqs'
-import { useAccount } from 'wagmi';
+import { useZeroDev } from '../../lib/zerodev/provider';
 import { zeroAddress } from 'viem';
 import { ellipsis } from '../../lib/utils/ellipsis';
 import { Button } from '../ui/button';
@@ -139,7 +139,7 @@ const NewGameForm: React.FC<NewGameFormProps> = ({ onNewGame }) => {
 };
 
 const TicTacToe: React.FC = () => {
-    const { address } = useAccount();
+    const { address } = useZeroDev();
     const [gameId] = useQueryState("id");
     const id = gameId ? BigInt(gameId) : undefined;
     const { data: gameData } = useGameQuery(id);

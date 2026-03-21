@@ -1,16 +1,11 @@
-import { WagmiProvider } from "wagmi"
 import TicTacToe from "../components/tictactoe"
-import { wagmiConfig } from "../wagmi"
 import { createFileRoute } from '@tanstack/react-router'
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-const queryClient = new QueryClient()
 
 export const Route = createFileRoute('/')({
     component: App,
 })
 
 function App() {
-
     return (
         <div className="flex flex-col p-4 h-screen max-w-screen-sm mx-auto">
             <h2 className="text-xl font-bold ">Hello there, this page is made by Joydeep.</h2>
@@ -23,14 +18,8 @@ function App() {
             <p className="text-sm">Talk to me about ethereum UX(aa,interop,wallets,etc) <a href="https://twitter.com/0xJoydeeeep" className="text-blue-500">Twitter</a>. Check out my <a href="https://github.com/Jds-23" className="text-blue-500">Github</a>. I also write sometimes on <a href="https://substack.com/@0xjoydeeeep" className="text-blue-500">substack</a>.</p>
             <div className="mt-4 border-2 border-black rounded-md p-4">
                 <h3 className="text-lg font-bold">EXP:0004 TicTacToe</h3>
-                <WagmiProvider config={wagmiConfig}>
-                    <QueryClientProvider client={queryClient}>
-                        <TicTacToe />
-                    </QueryClientProvider>
-                </WagmiProvider>
+                <TicTacToe />
             </div>
         </div>
     )
 }
-
-

@@ -1,7 +1,4 @@
-import { useAccount, useDisconnect, useConnect, useEnsName } from 'wagmi'
-import { permissions } from '../constant/permissions/ttt'
-import { useGrantPermissions } from 'porto/wagmi/Hooks'
-import { baseSepolia } from 'viem/chains'
+import { useZeroDev } from '../lib/zerodev/provider'
 import { ellipsis } from '../lib/utils/ellipsis'
 import { useClipboard } from '../lib/hooks/useClipboard'
 import { Button } from './ui/button'
@@ -12,11 +9,10 @@ interface AccountDropdownProps {
     open: boolean;
     onClose: () => void;
     onSignOut: () => void;
-    onGrantPermissions: () => void;
     anchorRef: React.RefObject<HTMLButtonElement>;
 }
 
-const AccountDropdown: React.FC<AccountDropdownProps> = ({ open, onClose, onSignOut, onGrantPermissions, anchorRef }) => {
+const AccountDropdown: React.FC<AccountDropdownProps> = ({ open, onClose, onSignOut, anchorRef }) => {
     const dropdownRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -56,36 +52,25 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({ open, onClose, onSign
             >
                 Sign out
             </Button>
-            <Button
-                className="w-full justify-start px-4 py-2 text-gray-700 hover:bg-gray-100 bg-transparent shadow-none mt-0"
-                onClick={() => {
-                    onGrantPermissions();
-                    onClose();
-                }}
-                type="button"
-            >
-                Grant Permissions
-            </Button>
         </div>
     );
 };
 
 interface AccountButtonGroupProps {
     address: string;
-    ensName?: string | null;
     onCopy: () => void;
     onDropdown: () => void;
     dropdownAnchorRef: React.RefObject<HTMLButtonElement>;
 }
 
-const AccountButtonGroup: React.FC<AccountButtonGroupProps> = ({ address, ensName, onCopy, onDropdown, dropdownAnchorRef }) => (
+const AccountButtonGroup: React.FC<AccountButtonGroupProps> = ({ address, onCopy, onDropdown, dropdownAnchorRef }) => (
     <span className="flex flex-row">
         <Button
             className="bg-blue-500 text-white hover:bg-blue-600 rounded-r-none"
             type="button"
             onClick={onCopy}
         >
-            {ensName ? ensName : ellipsis(address, 6)}
+            {ellipsis(address, 6)}
         </Button>
         <Button
             className="text-white px-1 text-xs bg-blue-500 hover:bg-blue-600 rounded-l-none border-l border-l-white"
@@ -101,23 +86,10 @@ const AccountButtonGroup: React.FC<AccountButtonGroupProps> = ({ address, ensNam
 );
 
 export const Connect: React.FC = () => {
-    const connect = useConnect();
-    const disconnect = useDisconnect();
-    const { address } = useAccount();
-    const { data: ensName } = useEnsName({ address });
+    const { address, isLoading, connect, disconnect } = useZeroDev();
     const [copy] = useClipboard();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const dropdownAnchorRef = useRef<HTMLButtonElement>(null) as React.RefObject<HTMLButtonElement>;
-
-    const { mutate: grantPermissions } = useGrantPermissions({
-        mutation: {
-            onSuccess: () => {
-                console.log('Permissions granted');
-            },
-        },
-    });
-
-    const connector = connect.connectors.find((c) => c.id === 'xyz.ithaca.porto')!;
 
     const handleCopy = useCallback(() => {
         if (address) copy(address);
@@ -128,29 +100,18 @@ export const Connect: React.FC = () => {
     }, []);
 
     const handleSignOut = useCallback(() => {
-        disconnect.disconnect();
+        disconnect();
     }, [disconnect]);
-
-    const handleGrantPermissions = useCallback(() => {
-        grantPermissions(permissions(baseSepolia));
-    }, [grantPermissions]);
 
     if (!address) {
         return (
             <Button
                 className="bg-blue-500 text-white hover:bg-blue-600"
-                onClick={() =>
-                    connect.connect({
-                        connector,
-                        // @ts-expect-error porto types are not updated
-                        capabilities: {
-                            grantPermissions: permissions(baseSepolia),
-                        },
-                    })
-                }
+                onClick={() => connect()}
+                disabled={isLoading}
                 type="button"
             >
-                Sign in
+                {isLoading ? 'Signing in...' : 'Sign in'}
             </Button>
         );
     }
@@ -159,7 +120,6 @@ export const Connect: React.FC = () => {
         <div className="flex flex-row gap-2 items-center relative">
             <AccountButtonGroup
                 address={address}
-                ensName={ensName}
                 onCopy={handleCopy}
                 onDropdown={handleDropdown}
                 dropdownAnchorRef={dropdownAnchorRef}
@@ -168,7 +128,6 @@ export const Connect: React.FC = () => {
                 open={isDropdownOpen}
                 onClose={() => setIsDropdownOpen(false)}
                 onSignOut={handleSignOut}
-                onGrantPermissions={handleGrantPermissions}
                 anchorRef={dropdownAnchorRef}
             />
         </div>
