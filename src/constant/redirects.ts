@@ -19,6 +19,11 @@ export const redirects: Redirect[] = [
         delay: 800
     },
     {
+        id: "github",
+        link: "https://github.com/Jds-23/rpc-plus-plus",
+        loadingMessage: "Taking you to GitHub repo...",
+    },
+    {
         id: "twitter",
         link: "https://x.com/0xJoydeeeep",
         loadingMessage: "Redirecting to Twitter...",
