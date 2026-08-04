@@ -19,7 +19,7 @@ export const redirects: Redirect[] = [
         delay: 800
     },
     {
-        id: "github",
+        id: "rpc-plus-plus",
         link: "https://github.com/Jds-23/rpc-plus-plus",
         loadingMessage: "Taking you to GitHub repo...",
     },
