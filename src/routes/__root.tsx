@@ -48,6 +48,9 @@ export const Route = createRootRoute({
             </Link>{' '}
             <Link to="/bookshelf" className="[&.active]:font-bold">
               Bookshelf
+            </Link>{' '}
+            <Link to="/playlists" className="[&.active]:font-bold">
+              Playlists
             </Link>
             <CommandCenterButton />
           </div>

@@ -1,10 +1,11 @@
 import type { useNavigate } from '@tanstack/react-router'
 import { experiments } from '../../constant/experiment'
 import { books } from '../../constant/books'
+import { playlists } from '../../constant/playlists'
 import { redirects } from '../../constant/redirects'
 import { slugify } from '../utils/slug'
 
-export type CommandGroup = 'Pages' | 'Experiments' | 'Books' | 'Links' | 'Actions'
+export type CommandGroup = 'Pages' | 'Experiments' | 'Books' | 'Playlists' | 'Links' | 'Actions'
 
 export interface CommandContext {
     navigate: ReturnType<typeof useNavigate>
@@ -36,6 +37,7 @@ const pages: CommandItem[] = [
     { id: 'page:home', group: 'Pages', label: 'Home', shortcut: ['G', 'H'], run: ({ navigate }) => navigate({ to: '/' }) },
     { id: 'page:experiments', group: 'Pages', label: 'Experiments', shortcut: ['G', 'E'], run: ({ navigate }) => navigate({ to: '/experiments' }) },
     { id: 'page:bookshelf', group: 'Pages', label: 'Bookshelf', shortcut: ['G', 'B'], run: ({ navigate }) => navigate({ to: '/bookshelf' }) },
+    { id: 'page:playlists', group: 'Pages', label: 'Playlists', shortcut: ['G', 'P'], run: ({ navigate }) => navigate({ to: '/playlists' }) },
     { id: 'page:tictactoe', group: 'Pages', label: 'TicTacToe', shortcut: ['G', 'T'], run: ({ navigate }) => navigate({ to: '/tictactoe' }) },
 ]
 
@@ -56,6 +58,17 @@ const bookItems: CommandItem[] = books.map(book => ({
     keywords: [book.author, book.status],
     run: ({ navigate }) => navigate({ to: '/bookshelf', hash: slugify(book.title) }),
 }))
+
+const trackItems: CommandItem[] = playlists.flatMap(playlist =>
+    playlist.tracks.map(track => ({
+        id: `track:${slugify(track.title)}`,
+        group: 'Playlists' as const,
+        label: track.title,
+        detail: `${track.artist} · ${track.movie}`,
+        keywords: [track.artist, track.movie, playlist.title],
+        run: ({ navigate }: CommandContext) => navigate({ to: '/playlists', hash: slugify(track.title) }),
+    })),
+)
 
 const linkItems: CommandItem[] = [
     ...socials.map(s => ({ id: `link:${s.label}`, label: s.label, href: s.href })),
@@ -89,6 +102,6 @@ const actions: CommandItem[] = [
     ...experimentLinkActions,
 ]
 
-export const commands: CommandItem[] = [...pages, ...experimentItems, ...bookItems, ...linkItems, ...actions]
+export const commands: CommandItem[] = [...pages, ...experimentItems, ...bookItems, ...trackItems, ...linkItems, ...actions]
 
-export const commandGroups: CommandGroup[] = ['Pages', 'Experiments', 'Books', 'Links', 'Actions']
+export const commandGroups: CommandGroup[] = ['Pages', 'Experiments', 'Books', 'Playlists', 'Links', 'Actions']

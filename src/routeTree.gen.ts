@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TictactoeRouteImport } from './routes/tictactoe'
+import { Route as PlaylistsRouteImport } from './routes/playlists'
 import { Route as BookshelfRouteImport } from './routes/bookshelf'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ExperimentsIndexRouteImport } from './routes/experiments/index'
@@ -19,6 +20,11 @@ import { Route as ExperimentsIdRouteImport } from './routes/experiments/$id'
 const TictactoeRoute = TictactoeRouteImport.update({
   id: '/tictactoe',
   path: '/tictactoe',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlaylistsRoute = PlaylistsRouteImport.update({
+  id: '/playlists',
+  path: '/playlists',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BookshelfRoute = BookshelfRouteImport.update({
@@ -50,6 +56,7 @@ const ExperimentsIdRoute = ExperimentsIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/bookshelf': typeof BookshelfRoute
+  '/playlists': typeof PlaylistsRoute
   '/tictactoe': typeof TictactoeRoute
   '/experiments/$id': typeof ExperimentsIdRoute
   '/r/$id': typeof RIdRoute
@@ -58,6 +65,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/bookshelf': typeof BookshelfRoute
+  '/playlists': typeof PlaylistsRoute
   '/tictactoe': typeof TictactoeRoute
   '/experiments/$id': typeof ExperimentsIdRoute
   '/r/$id': typeof RIdRoute
@@ -67,6 +75,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/bookshelf': typeof BookshelfRoute
+  '/playlists': typeof PlaylistsRoute
   '/tictactoe': typeof TictactoeRoute
   '/experiments/$id': typeof ExperimentsIdRoute
   '/r/$id': typeof RIdRoute
@@ -77,6 +86,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/bookshelf'
+    | '/playlists'
     | '/tictactoe'
     | '/experiments/$id'
     | '/r/$id'
@@ -85,6 +95,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/bookshelf'
+    | '/playlists'
     | '/tictactoe'
     | '/experiments/$id'
     | '/r/$id'
@@ -93,6 +104,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/bookshelf'
+    | '/playlists'
     | '/tictactoe'
     | '/experiments/$id'
     | '/r/$id'
@@ -102,6 +114,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BookshelfRoute: typeof BookshelfRoute
+  PlaylistsRoute: typeof PlaylistsRoute
   TictactoeRoute: typeof TictactoeRoute
   ExperimentsIdRoute: typeof ExperimentsIdRoute
   RIdRoute: typeof RIdRoute
@@ -115,6 +128,13 @@ declare module '@tanstack/react-router' {
       path: '/tictactoe'
       fullPath: '/tictactoe'
       preLoaderRoute: typeof TictactoeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/playlists': {
+      id: '/playlists'
+      path: '/playlists'
+      fullPath: '/playlists'
+      preLoaderRoute: typeof PlaylistsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/bookshelf': {
@@ -158,6 +178,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BookshelfRoute: BookshelfRoute,
+  PlaylistsRoute: PlaylistsRoute,
   TictactoeRoute: TictactoeRoute,
   ExperimentsIdRoute: ExperimentsIdRoute,
   RIdRoute: RIdRoute,

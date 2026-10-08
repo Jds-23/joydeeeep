@@ -30,5 +30,6 @@ export function useGlobalHotkeys() {
     useHotkeySequence(['G', 'H'], () => navigate({ to: '/' }), seq('Home'))
     useHotkeySequence(['G', 'E'], () => navigate({ to: '/experiments' }), seq('Experiments'))
     useHotkeySequence(['G', 'B'], () => navigate({ to: '/bookshelf' }), seq('Bookshelf'))
+    useHotkeySequence(['G', 'P'], () => navigate({ to: '/playlists' }), seq('Playlists'))
     useHotkeySequence(['G', 'T'], () => navigate({ to: '/tictactoe' }), seq('TicTacToe'))
 }
