@@ -1,5 +1,8 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { experiments, type ExperimentLink } from '../../constant/experiment'
+import { useListNav } from '../../lib/hooks/useListNav'
+import { cn } from '../../lib/utils/cn'
+import { ListNavHint } from '../../components/command/KeyHint'
 
 export const Route = createFileRoute('/experiments/$id')({
     loader: ({ params }) => {
@@ -13,6 +16,9 @@ export const Route = createFileRoute('/experiments/$id')({
 })
 
 function ExperimentLinks({ links }: { links: ExperimentLink[] }) {
+    const { activeIndex, register } = useListNav({ count: links.length })
+    const activeClass = (index: number) => index === activeIndex && 'ring-2 ring-neutral-900 ring-offset-1'
+
     return (
         <div className="flex flex-wrap gap-3 items-center">
             {links.map((link, index) => (
@@ -20,10 +26,11 @@ function ExperimentLinks({ links }: { links: ExperimentLink[] }) {
                     {index > 0 && <span className="mx-2 text-gray-400">•</span>}
                     {link.external ? (
                         <a
+                            ref={register(index)}
                             href={link.href}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center px-3 py-1 text-sm bg-blue-100 text-blue-800 rounded-md hover:bg-blue-200 transition-colors"
+                            className={cn("inline-flex items-center px-3 py-1 text-sm bg-blue-100 text-blue-800 rounded-md hover:bg-blue-200 transition-colors", activeClass(index))}
                         >
                             {link.text}
                             <svg className="ml-1 h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
@@ -31,9 +38,10 @@ function ExperimentLinks({ links }: { links: ExperimentLink[] }) {
                             </svg>
                         </a>
                     ) : (
-                        <Link 
-                            to={link.href} 
-                            className="inline-flex items-center px-3 py-1 text-sm bg-green-100 text-green-800 rounded-md hover:bg-green-200 transition-colors"
+                        <Link
+                            ref={register(index)}
+                            to={link.href}
+                            className={cn("inline-flex items-center px-3 py-1 text-sm bg-green-100 text-green-800 rounded-md hover:bg-green-200 transition-colors", activeClass(index))}
                         >
                             {link.text}
                         </Link>
@@ -91,7 +99,10 @@ function ExperimentDetailPage() {
                 </section>
 
                 <section className="mb-8">
-                    <h2 className="text-lg font-semibold text-gray-900 mb-4">Resources</h2>
+                    <div className="flex items-end justify-between gap-4 mb-4">
+                        <h2 className="text-lg font-semibold text-gray-900">Resources</h2>
+                        <ListNavHint />
+                    </div>
                     <ExperimentLinks links={experiment.links} />
                 </section>
             </main>

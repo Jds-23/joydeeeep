@@ -7,6 +7,9 @@ import { useZeroDev } from '../../lib/zerodev/provider';
 import { zeroAddress } from 'viem';
 import { ellipsis } from '../../lib/utils/ellipsis';
 import { Button } from '../ui/button';
+import { useHotkey, useHotkeys, type Hotkey } from '@tanstack/react-hotkeys';
+import { usePalette } from '../../lib/hooks/usePalette';
+import { Kbd } from '../command/KeyHint';
 
 const lines = [
     [0, 1, 2],
@@ -36,7 +39,48 @@ interface TicTacToeBoardProps {
     boardAnimKey: number;
 }
 
+const BOARD_KEYS_GROUP = 'TicTacToe';
+const DIGITS = ['1', '2', '3', '4', '5', '6', '7', '8', '9'] as const satisfies Hotkey[];
+
+/** Keyboard cursor over the board. Keys only move the cursor; Enter/Space submits the move tx. */
+function useBoardCursor(onSubmit: (index: number) => void) {
+    const { isOpen } = usePalette();
+    const [cursor, setCursor] = useState(4);
+    const enabled = !isOpen;
+
+    const move = (dx: number, dy: number) => setCursor(prev => {
+        const x = Math.min(2, Math.max(0, (prev % 3) + dx));
+        const y = Math.min(2, Math.max(0, Math.floor(prev / 3) + dy));
+        return y * 3 + x;
+    });
+    const moveMeta = { name: 'Move cursor', group: BOARD_KEYS_GROUP };
+    useHotkeys([
+        { hotkey: 'ArrowUp', callback: () => move(0, -1) },
+        { hotkey: 'ArrowDown', callback: () => move(0, 1) },
+        { hotkey: 'ArrowLeft', callback: () => move(-1, 0) },
+        { hotkey: 'ArrowRight', callback: () => move(1, 0) },
+    ], { enabled, meta: moveMeta });
+    // reading order: 1 = top-left, 9 = bottom-right
+    useHotkeys(DIGITS.map((digit, i) => ({ hotkey: digit, callback: () => setCursor(i) })), {
+        enabled,
+        meta: { name: 'Jump cursor to square', group: BOARD_KEYS_GROUP },
+    });
+
+    const submit = (e: KeyboardEvent) => {
+        // a focused square handles Enter/Space natively (it's a button)
+        if (e.target instanceof HTMLElement && e.target.closest('a,button')) return;
+        e.preventDefault();
+        onSubmit(cursor);
+    };
+    const submitOpts = { enabled, preventDefault: false, meta: { name: 'Play square', group: BOARD_KEYS_GROUP } };
+    useHotkey('Enter', submit, submitOpts);
+    useHotkey('Space', submit, submitOpts);
+
+    return [cursor, setCursor] as const;
+}
+
 const TicTacToeBoard: React.FC<TicTacToeBoardProps> = ({ board, winLine, onSquareClick, boardAnimKey }) => {
+    const [cursor, setCursor] = useBoardCursor(onSquareClick);
     // Win line SVG
     const winLineSVG = winLine ? (() => {
         const pos = [
@@ -61,6 +105,7 @@ const TicTacToeBoard: React.FC<TicTacToeBoardProps> = ({ board, winLine, onSquar
     })() : null;
 
     return (
+        <>
         <div className="relative w-[270px] h-[270px]">
             <svg
                 key={boardAnimKey}
@@ -91,12 +136,25 @@ const TicTacToeBoard: React.FC<TicTacToeBoardProps> = ({ board, winLine, onSquar
                     <Square
                         key={i}
                         value={val}
-                        onClick={() => onSquareClick(i)}
+                        onClick={() => {
+                            setCursor(i);
+                            onSquareClick(i);
+                        }}
                         highlight={winLine?.includes(i)}
+                        cursor={i === cursor}
                     />
                 ))}
             </div>
         </div>
+        <p className="hidden pointer-fine:flex items-center gap-1 mt-3 text-xs text-neutral-500">
+            <Kbd>←↑↓→</Kbd>
+            <span>or</span>
+            <Kbd>1–9</Kbd>
+            <span className="mr-2">move</span>
+            <Kbd>↵</Kbd>
+            <span>play</span>
+        </p>
+        </>
     );
 };
 
