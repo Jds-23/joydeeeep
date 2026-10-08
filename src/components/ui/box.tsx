@@ -7,7 +7,7 @@ interface BoxProps {
 
 export function Box({ children, className = '' }: BoxProps) {
     return (
-        <div className={`border-2 border-black rounded-md p-4 ${className}`}>
+        <div className={`border-2 border-black rounded-md p-3 ${className}`}>
             {children}
         </div>
     )

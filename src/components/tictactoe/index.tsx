@@ -106,7 +106,7 @@ const TicTacToeBoard: React.FC<TicTacToeBoardProps> = ({ board, winLine, onSquar
 
     return (
         <>
-        <div className="relative w-[270px] h-[270px]">
+        <div className="relative w-[216px] h-[216px]">
             <svg
                 key={boardAnimKey}
                 className={`absolute top-0 left-0 w-full h-full pointer-events-none z-20`}
@@ -162,7 +162,7 @@ interface TicTacToeStatusProps {
     status: string;
 }
 const TicTacToeStatus: React.FC<TicTacToeStatusProps> = ({ status }) => (
-    <div className="mb-4 text-lg text-center font-semibold text-gray-700">{status}</div>
+    <div className="mb-2 text-base text-center font-semibold text-gray-700">{status}</div>
 );
 
 interface NewGameFormProps {
@@ -187,7 +187,7 @@ const NewGameForm: React.FC<NewGameFormProps> = ({ onNewGame }) => {
                 onChange={e => setOpponent(e.target.value)}
             />
             <Button
-                className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                className="px-4 py-1.5 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
                 type="submit"
             >
                 New Game
@@ -235,8 +235,8 @@ const TicTacToe: React.FC = () => {
     }
 
     return (
-        <div className="flex flex-col items-center h-80">
-            <div className="mb-4">
+        <div className="flex flex-col items-center h-72">
+            <div className="mb-2">
                 <Connect />
             </div>
             {!address && <TicTacToeStatus status={status} />}

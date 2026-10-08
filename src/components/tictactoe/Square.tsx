@@ -13,7 +13,7 @@ const Square: React.FC<{
         >
             {value === 'X' && (
                 <svg
-                    className="w-12 h-12 stroke-blue-500 animate-draw-x"
+                    className="w-10 h-10 stroke-blue-500 animate-draw-x"
                     viewBox="0 0 48 48"
                     fill="none"
                     strokeWidth="4"
@@ -25,7 +25,7 @@ const Square: React.FC<{
             )}
             {value === 'O' && (
                 <svg
-                    className="w-12 h-12 stroke-red-500 animate-draw-o"
+                    className="w-10 h-10 stroke-red-500 animate-draw-o"
                     viewBox="0 0 48 48"
                     fill="none"
                     strokeWidth="4"
@@ -35,7 +35,7 @@ const Square: React.FC<{
             )}
             {value === 'LX' && (
                 <svg
-                    className="w-12 h-12 stroke-blue-400/60 animate-loading-x"
+                    className="w-10 h-10 stroke-blue-400/60 animate-loading-x"
                     viewBox="0 0 48 48"
                     fill="none"
                     strokeWidth="4"
@@ -47,7 +47,7 @@ const Square: React.FC<{
             )}
             {value === 'LO' && (
                 <svg
-                    className="w-12 h-12 stroke-red-400/60 animate-loading-o"
+                    className="w-10 h-10 stroke-red-400/60 animate-loading-o"
                     viewBox="0 0 48 48"
                     fill="none"
                     strokeWidth="4"

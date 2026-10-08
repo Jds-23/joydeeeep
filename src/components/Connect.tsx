@@ -40,10 +40,10 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({ open, onClose, onSign
     return (
         <div
             ref={dropdownRef}
-            className="absolute left-0 top-full mt-2 z-50 bg-white border border-gray-200 rounded shadow-lg min-w-[160px] flex flex-col"
+            className="absolute left-0 top-full mt-1 z-50 bg-white border border-gray-200 rounded shadow-lg min-w-[160px] flex flex-col"
         >
             <Button
-                className="w-full justify-start px-4 py-2 text-gray-700 hover:bg-gray-100 bg-transparent shadow-none mt-0"
+                className="w-full justify-start px-3 py-1.5 text-gray-700 hover:bg-gray-100 bg-transparent shadow-none mt-0"
                 onClick={() => {
                     onSignOut();
                     onClose();

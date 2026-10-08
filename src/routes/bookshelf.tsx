@@ -32,21 +32,21 @@ function BookItem({ book, active, flash, ref }: { book: Book; active: boolean; f
             id={slugify(book.title)}
             ref={ref}
             className={cn(
-                'mb-4 last:mb-0 p-4 border border-gray-200 rounded-lg scroll-mt-24 transition-colors duration-500',
+                'mb-2 last:mb-0 px-3 py-2 border border-gray-200 rounded-md scroll-mt-16 transition-colors duration-500',
                 active && 'border-neutral-900 ring-2 ring-neutral-900',
                 flash && 'bg-yellow-100',
             )}
         >
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-0.5">
                 {book.link ? (
-                    <a href={book.link} target="_blank" rel="noopener noreferrer" className="font-bold text-blue-500">
+                    <a href={book.link} target="_blank" rel="noopener noreferrer" className="text-sm font-bold text-blue-500">
                         {book.title}
                     </a>
                 ) : (
-                    <span className="font-bold text-gray-900">{book.title}</span>
+                    <span className="text-sm font-bold text-gray-900">{book.title}</span>
                 )}
-                <span className="text-sm text-gray-500">{book.author}</span>
-                {book.note && <p className="text-sm text-gray-700">{book.note}</p>}
+                <span className="text-xs text-gray-500">{book.author}</span>
+                {book.note && <p className="text-xs text-gray-700">{book.note}</p>}
             </div>
         </article>
     );
@@ -68,16 +68,16 @@ export default function BookshelfPage() {
     }, [hash, setActiveIndex]);
 
     return (
-        <div className="flex flex-col p-6 min-h-screen max-w-2xl mx-auto">
-            <header className="mb-8 flex items-end justify-between gap-4">
-                <h1 className="text-3xl font-bold text-gray-900">Bookshelf</h1>
+        <div className="flex flex-col p-4 min-h-screen max-w-2xl mx-auto">
+            <header className="mb-4 flex items-end justify-between gap-4">
+                <h1 className="text-xl font-bold text-gray-900">Bookshelf</h1>
                 <ListNavHint />
             </header>
 
-            <main className="flex flex-col gap-8">
+            <main className="flex flex-col gap-5">
                 {grouped.map(({ status, label, items }) => (
                     <section key={status} aria-label={label}>
-                        <h2 className="text-lg font-bold text-gray-800 mb-3">{label}</h2>
+                        <h2 className="text-sm font-bold text-gray-800 mb-1.5">{label}</h2>
                         {items.map((book) => {
                             const index = ordered.indexOf(book);
                             return (

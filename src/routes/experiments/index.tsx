@@ -8,9 +8,9 @@ export const Route = createFileRoute('/experiments/')({
 
 export default function ExperimentsPage() {
     return (
-        <div className="flex flex-col p-6">
-            <header className="mb-8">
-                <h1 className="text-3xl font-bold text-gray-900">My Experiments</h1>
+        <div className="flex flex-col p-4">
+            <header className="mb-4">
+                <h1 className="text-xl font-bold text-gray-900">My Experiments</h1>
             </header>
 
             <main>
