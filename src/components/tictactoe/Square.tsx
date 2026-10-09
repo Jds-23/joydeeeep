@@ -2,10 +2,11 @@ const Square: React.FC<{
     value: 'X' | 'O' | 'LX' | 'LO' | null;
     onClick: () => void;
     highlight?: boolean;
-}> = ({ value, onClick, highlight }) => {
+    cursor?: boolean;
+}> = ({ value, onClick, highlight, cursor }) => {
     return (
         <button
-            className={`w-full h-full flex items-center justify-center bg-white transition-colors duration-200 focus:outline-none active:bg-gray-100 ${highlight ? 'bg-yellow-100' : ''}`}
+            className={`w-full h-full flex items-center justify-center bg-white transition-colors duration-200 focus:outline-none active:bg-gray-100 ${highlight ? 'bg-yellow-100' : ''} ${cursor ? 'pointer-fine:ring-2 pointer-fine:ring-inset pointer-fine:ring-neutral-900' : ''}`}
             onClick={onClick}
             data-testid="square"
             style={{ aspectRatio: '1 / 1' }}

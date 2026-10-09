@@ -1,9 +1,9 @@
 import { Link } from '@tanstack/react-router'
 import type { Experiment } from '../constant/experiment'
 
-const CARD_TRAVEL_VH = 160
-const PEEK_OFFSET_PX = 28
-const BASE_TOP_PX = 24
+export const CARD_TRAVEL_VH = 160
+export const PEEK_OFFSET_PX = 28
+export const BASE_TOP_PX = 24
 
 export function ExperimentPoster({
     experiment,

@@ -1,5 +1,10 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useLocation } from '@tanstack/react-router'
+import { useEffect, useState } from 'react'
 import { books, type Book, type BookStatus } from '../constant/books'
+import { useListNav } from '../lib/hooks/useListNav'
+import { slugify } from '../lib/utils/slug'
+import { cn } from '../lib/utils/cn'
+import { ListNavHint } from '../components/command/KeyHint'
 
 export const Route = createFileRoute('/bookshelf')({
     component: BookshelfPage,
@@ -12,9 +17,26 @@ const sections: { status: BookStatus; label: string }[] = [
     { status: 'paused', label: 'Left halfway, want to pick up later' },
 ];
 
-function BookItem({ book }: { book: Book }) {
+const grouped = sections
+    .map(section => ({ ...section, items: books.filter((book) => book.status === section.status) }))
+    .filter(section => section.items.length > 0);
+
+// keyboard order follows on-screen section order
+const ordered = grouped.flatMap(section => section.items);
+
+const FLASH_MS = 1500;
+
+function BookItem({ book, active, flash, ref }: { book: Book; active: boolean; flash: boolean; ref: (el: HTMLElement | null) => void }) {
     return (
-        <article className="mb-4 last:mb-0 p-4 border border-gray-200 rounded-lg">
+        <article
+            id={slugify(book.title)}
+            ref={ref}
+            className={cn(
+                'mb-4 last:mb-0 p-4 border border-gray-200 rounded-lg scroll-mt-24 transition-colors duration-500',
+                active && 'border-neutral-900 ring-2 ring-neutral-900',
+                flash && 'bg-yellow-100',
+            )}
+        >
             <div className="flex flex-col gap-1">
                 {book.link ? (
                     <a href={book.link} target="_blank" rel="noopener noreferrer" className="font-bold text-blue-500">
@@ -31,25 +53,45 @@ function BookItem({ book }: { book: Book }) {
 }
 
 export default function BookshelfPage() {
+    const hash = useLocation({ select: (location) => location.hash });
+    const { activeIndex, setActiveIndex, register } = useListNav({ count: ordered.length });
+    const [flashSlug, setFlashSlug] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (!hash) return;
+        const index = ordered.findIndex((book) => slugify(book.title) === hash);
+        if (index < 0) return;
+        setActiveIndex(index);
+        setFlashSlug(hash);
+        const timer = setTimeout(() => setFlashSlug(null), FLASH_MS);
+        return () => clearTimeout(timer);
+    }, [hash, setActiveIndex]);
+
     return (
         <div className="flex flex-col p-6 min-h-screen max-w-2xl mx-auto">
-            <header className="mb-8">
+            <header className="mb-8 flex items-end justify-between gap-4">
                 <h1 className="text-3xl font-bold text-gray-900">Bookshelf</h1>
+                <ListNavHint />
             </header>
 
             <main className="flex flex-col gap-8">
-                {sections.map(({ status, label }) => {
-                    const items = books.filter((book) => book.status === status);
-                    if (items.length === 0) return null;
-                    return (
-                        <section key={status} aria-label={label}>
-                            <h2 className="text-lg font-bold text-gray-800 mb-3">{label}</h2>
-                            {items.map((book) => (
-                                <BookItem key={book.title} book={book} />
-                            ))}
-                        </section>
-                    );
-                })}
+                {grouped.map(({ status, label, items }) => (
+                    <section key={status} aria-label={label}>
+                        <h2 className="text-lg font-bold text-gray-800 mb-3">{label}</h2>
+                        {items.map((book) => {
+                            const index = ordered.indexOf(book);
+                            return (
+                                <BookItem
+                                    key={book.title}
+                                    book={book}
+                                    ref={register(index)}
+                                    active={index === activeIndex}
+                                    flash={flashSlug === slugify(book.title)}
+                                />
+                            );
+                        })}
+                    </section>
+                ))}
             </main>
         </div>
     );
