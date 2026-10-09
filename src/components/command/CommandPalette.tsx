@@ -7,9 +7,9 @@ import { usePalette } from '../../lib/hooks/usePalette'
 import { Kbd } from './KeyHint'
 
 const groupClass =
-    '[&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:pt-3 [&_[cmdk-group-heading]]:pb-1 [&_[cmdk-group-heading]]:text-[11px] [&_[cmdk-group-heading]]:font-mono [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-widest [&_[cmdk-group-heading]]:text-neutral-500'
+    '[&_[cmdk-group-heading]]:px-2.5 [&_[cmdk-group-heading]]:pt-2 [&_[cmdk-group-heading]]:pb-1 [&_[cmdk-group-heading]]:text-[11px] [&_[cmdk-group-heading]]:font-mono [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-widest [&_[cmdk-group-heading]]:text-neutral-500'
 const itemClass =
-    'flex items-center justify-between gap-3 px-3 py-2 mx-1 rounded cursor-pointer text-sm data-[selected=true]:bg-neutral-900 data-[selected=true]:text-white'
+    'flex items-center justify-between gap-2 px-2.5 py-1.5 mx-1 rounded cursor-pointer text-xs data-[selected=true]:bg-neutral-900 data-[selected=true]:text-white'
 
 function Keys({ keys }: { keys: string[] }) {
     return (
@@ -70,10 +70,10 @@ export function CommandPalette() {
             label="Command center"
             loop
             overlayClassName="fixed inset-0 z-[100] bg-black/30"
-            contentClassName="fixed z-[101] left-1/2 top-[12vh] -translate-x-1/2 w-[calc(100vw-32px)] max-w-xl rounded-lg border-2 border-neutral-900 bg-white text-neutral-900 shadow-[4px_4px_0_0_#171717] overflow-hidden"
+            contentClassName="fixed z-[101] left-1/2 top-[12vh] -translate-x-1/2 w-[calc(100vw-32px)] max-w-lg rounded-lg border-2 border-neutral-900 bg-white text-neutral-900 shadow-[4px_4px_0_0_#171717] overflow-hidden"
         >
             <div className="flex items-center gap-2 border-b-2 border-neutral-900 px-3">
-                <span className="font-mono text-sm">{mode === 'shortcuts' ? '?' : '>'}</span>
+                <span className="font-mono text-xs">{mode === 'shortcuts' ? '?' : '>'}</span>
                 <Command.Input
                     value={search}
                     onValueChange={setSearch}
@@ -81,12 +81,12 @@ export function CommandPalette() {
                         if (mode === 'shortcuts' && e.key === 'Backspace' && search === '') open('all')
                     }}
                     placeholder={mode === 'shortcuts' ? 'Search shortcuts…' : 'Jump to page, experiment, book, link…'}
-                    className="w-full py-3 bg-transparent outline-none text-sm placeholder:text-neutral-400"
+                    className="w-full py-2 bg-transparent outline-none text-xs placeholder:text-neutral-400"
                 />
                 <Keys keys={['esc']} />
             </div>
             <Command.List className="max-h-[60vh] overflow-y-auto pb-2">
-                <Command.Empty className="px-3 py-6 text-sm text-center text-neutral-500">Nothing found.</Command.Empty>
+                <Command.Empty className="px-3 py-4 text-xs text-center text-neutral-500">Nothing found.</Command.Empty>
 
                 {mode === 'all' &&
                     commandGroups.map(group => (

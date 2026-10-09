@@ -24,10 +24,10 @@ function CommandCenterButton() {
     <button
       type="button"
       onClick={() => open()}
-      className="ml-auto shrink-0 inline-flex items-center gap-2 px-2 py-0.5 text-sm border-2 border-neutral-900 rounded-md hover:bg-neutral-100"
+      className="ml-auto shrink-0 inline-flex items-center gap-1.5 px-1.5 py-0.5 text-xs border-2 border-neutral-900 rounded-md hover:bg-neutral-100"
       aria-label="Open command center"
     >
-      <Search className="size-4" aria-hidden />
+      <Search className="size-3.5" aria-hidden />
       <span className="hidden sm:inline">Command</span>
       <KeyHint keys={[formatForDisplay('Mod+K')]} />
     </button>
@@ -39,7 +39,7 @@ export const Route = createRootRoute({
     <QueryClientProvider client={queryClient}>
       <ZeroDevProvider>
         <PaletteProvider>
-          <div className="p-2 flex items-center gap-2">
+          <div className="px-3 py-1.5 flex items-center gap-3 text-sm">
             <Link to="/" className="[&.active]:font-bold">
               Home
             </Link>{' '}

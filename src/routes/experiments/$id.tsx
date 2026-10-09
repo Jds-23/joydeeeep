@@ -20,17 +20,17 @@ function ExperimentLinks({ links }: { links: ExperimentLink[] }) {
     const activeClass = (index: number) => index === activeIndex && 'ring-2 ring-neutral-900 ring-offset-1'
 
     return (
-        <div className="flex flex-wrap gap-3 items-center">
+        <div className="flex flex-wrap gap-2 items-center">
             {links.map((link, index) => (
                 <span key={index} className="flex items-center">
-                    {index > 0 && <span className="mx-2 text-gray-400">•</span>}
+                    {index > 0 && <span className="mx-1 text-gray-400">•</span>}
                     {link.external ? (
                         <a
                             ref={register(index)}
                             href={link.href}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className={cn("inline-flex items-center px-3 py-1 text-sm bg-blue-100 text-blue-800 rounded-md hover:bg-blue-200 transition-colors", activeClass(index))}
+                            className={cn("inline-flex items-center px-2 py-0.5 text-xs bg-blue-100 text-blue-800 rounded-md hover:bg-blue-200 transition-colors", activeClass(index))}
                         >
                             {link.text}
                             <svg className="ml-1 h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
@@ -41,7 +41,7 @@ function ExperimentLinks({ links }: { links: ExperimentLink[] }) {
                         <Link
                             ref={register(index)}
                             to={link.href}
-                            className={cn("inline-flex items-center px-3 py-1 text-sm bg-green-100 text-green-800 rounded-md hover:bg-green-200 transition-colors", activeClass(index))}
+                            className={cn("inline-flex items-center px-2 py-0.5 text-xs bg-green-100 text-green-800 rounded-md hover:bg-green-200 transition-colors", activeClass(index))}
                         >
                             {link.text}
                         </Link>
@@ -56,13 +56,13 @@ function ExperimentDetailPage() {
     const { experiment } = Route.useLoaderData()
 
     return (
-        <div className="flex flex-col p-6 min-h-screen max-w-4xl mx-auto">
-            <nav className="mb-6">
+        <div className="flex flex-col p-4 min-h-screen max-w-3xl mx-auto">
+            <nav className="mb-3 text-sm">
                 <Link 
                     to="/experiments" 
                     className="inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors"
                 >
-                    <svg className="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="mr-1 h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                     Back to Experiments
@@ -70,37 +70,37 @@ function ExperimentDetailPage() {
             </nav>
 
             <main>
-                <header className="mb-8">
-                    <div className="flex flex-col gap-4">
+                <header className="mb-4">
+                    <div className="flex flex-col gap-2">
                         <div>
-                            <span className="inline-block px-3 py-1 text-sm font-semibold bg-gray-100 text-gray-800 rounded-full mb-2">
+                            <span className="inline-block px-2 py-0.5 text-xs font-semibold bg-gray-100 text-gray-800 rounded-full mb-1">
                                 {experiment.id}
                             </span>
-                            <h1 className="text-3xl font-bold text-gray-900">
+                            <h1 className="text-xl font-bold text-gray-900">
                                 {experiment.title}
                             </h1>
                         </div>
                         
-                        <time className="text-sm text-gray-600" dateTime={experiment.date}>
+                        <time className="text-xs text-gray-600" dateTime={experiment.date}>
                             {experiment.date}
                         </time>
                     </div>
                 </header>
 
-                <section className="mb-8">
-                    <h2 className="text-lg font-semibold text-gray-900 mb-3">Description</h2>
+                <section className="mb-4">
+                    <h2 className="text-sm font-semibold text-gray-900 mb-1.5">Description</h2>
                     <div className="prose prose-gray max-w-none">
                         {typeof experiment.description === 'string' ? (
-                            <p className="text-gray-700 leading-relaxed">{experiment.description}</p>
+                            <p className="text-sm text-gray-700 leading-relaxed">{experiment.description}</p>
                         ) : (
-                            <div className="text-gray-700">{experiment.description}</div>
+                            <div className="text-sm text-gray-700">{experiment.description}</div>
                         )}
                     </div>
                 </section>
 
-                <section className="mb-8">
-                    <div className="flex items-end justify-between gap-4 mb-4">
-                        <h2 className="text-lg font-semibold text-gray-900">Resources</h2>
+                <section className="mb-4">
+                    <div className="flex items-end justify-between gap-4 mb-2">
+                        <h2 className="text-sm font-semibold text-gray-900">Resources</h2>
                         <ListNavHint />
                     </div>
                     <ExperimentLinks links={experiment.links} />
