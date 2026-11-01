@@ -15,6 +15,15 @@ export interface Experiment {
 
 export const experiments: Experiment[] = [
     {
+        id: "EXP0007",
+        title: "rpc-plus-plus: An Ethereum RPC Proxy That Absorbs Provider Outages",
+        date: "2026.10.29",
+        description: "A Rust JSON-RPC proxy that sits between your app and N upstream providers. It round-robins or ranks upstreams by error rate, retries failed calls on the next provider, hedges slow requests by racing a second upstream, and coalesces concurrent identical reads into one call. Every request carries a request_id through its upstream attempts, with Prometheus metrics and a Grafana dashboard on top.",
+        links: [
+            { text: "Github", href: "https://github.com/Jds-23/rpc-plus-plus", external: true }
+        ]
+    },
+    {
         id: "EXP0006",
         title: "The Multiverse Market",
         date: "2026.03.19",
